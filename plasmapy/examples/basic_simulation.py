@@ -1,8 +1,10 @@
 import numpy as np
 import astropy.units as u
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 from pathlib import Path
 from plasmapy import Plasma
+import os
 
 
 def gaussian(x, mean=0.0, std=1.0, amp=1.0):
@@ -41,16 +43,37 @@ def test_mhd_waves():
     waves.magnetic_field = bfield
     print('Success')
 
-    for max_i in range(0, 5001, 1000):
-        print('- Running Simulation... ', end='')
-        waves.simulate(max_its=max_i)
-        print("Simulation complete")
+    fig, ax = plt.subplots()
+    density_plot = ax.imshow(waves.density.value, cmap='plasma')
+    colorbar = fig.colorbar(density_plot)
+    title = ax.set_title("")
 
-        fig, ax = plt.subplots()
-        plt.imshow(waves.density.value, cmap='plasma')
-        plt.colorbar()
-        savedir = Path("/home/drew/PlasmaPy/plasmapy/tests/test_output")
-        if not savedir.exists():
-            savedir.mkdir()
-        plt.savefig(str(savedir/"mhd_waves_{}".format(max_i)))
-        plt.close()
+    savedir = "/home/dominik/PlasmaPy/plasmapy/tests/test_output/"
+    if not os.path.exists(savedir):
+        os.makedirs(savedir)
+
+    iter_step = 30
+    iters = 5001
+    frames = iters // iter_step
+    def animate(i):
+        print(f"Drawing frame {i}, iteration {i*iter_step}")
+        vmax = waves.density.max().si.value
+        vmin = waves.density.min().si.value
+        density_plot.set_data(waves.density)
+        density_plot.set_clim(vmin, vmax)
+        waves.simulate(max_its=iter_step)
+        title.set_text(f"Iteration {waves.simulation_physics.current_iteration}/{iters}")
+        fig.savefig(f"{savedir}mhd_waves_{i:03d}")
+        return [density_plot, title]
+    def init():
+        density_plot.set_data(waves.density)
+
+        title.set_text(f"{0}, {waves.simulation_physics.current_iteration}")
+        fig.savefig(f"{savedir}mhd_waves_{0:03d}")
+        return [density_plot, title]
+
+    anim = animation.FuncAnimation(fig, animate, frames, init_func=init, blit=True)
+    anim.save(f"{savedir}mhd_waves.mp4", )
+
+if __name__ == '__main__':
+    test_mhd_waves()

@@ -292,7 +292,7 @@ class Plasma:
         Examples
         --------
         >>> # Run a simulation for exactly one thousand iterations.
-        >>> myplasma.simulate(max_time=1000)
+        >>> myplasma.simulate(max_its=1000)
 
         >>> # Run a simulation for up to half an hour of simulation time.
         >>> myplasma.simulate(max_time=30*u.minute)
@@ -303,13 +303,16 @@ class Plasma:
         physics = self.simulation_physics
         dt = physics.dt
 
+        iterations_todo = max_its + physics.current_iteration
+        time_todo = max_time + physics.current_time
+
         if np.isinf(max_time):
             pb = ProgressBar(max_its)
         else:
             pb = ProgressBar(int(max_time / dt))
 
         with pb as bar:
-            while (physics.current_iteration < max_its
-                   and physics.current_time < max_time):
+            while (physics.current_iteration < iterations_todo
+                   and physics.current_time < time_todo):
                 physics.time_stepper()
                 bar.update()
