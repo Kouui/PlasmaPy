@@ -1,13 +1,9 @@
 from plasmapy.classes import Plasma, Species
 from astropy import units as u
 import pytest
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
-from astropy.visualization import quantity_support
 from astropy.modeling import models, fitting
 
-quantity_support()
 
 
 @pytest.fixture()
@@ -47,6 +43,10 @@ def test_particle_uniform_magnetic():
     z = s.position_history[:, 0, 2]
 
     def plot():
+        from astropy.visualization import quantity_support
+        import matplotlib.pyplot as plt
+        from mpl_toolkits.mplot3d import Axes3D
+        quantity_support()
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         ax.set_title("")
@@ -59,11 +59,6 @@ def test_particle_uniform_magnetic():
     p_init = models.Polynomial1D(degree=1)
     fit_p = fitting.LinearLSQFitter()
     p = fit_p(p_init, s.t, z)
-
-    def velocity_plots():
-        plt.scatter(s.t, z)
-        plt.plot(s.t, p(s.t))
-        plt.show()
 
     assert np.allclose(z, p(s.t), atol=1e-4 * u.m),\
         "z-velocity doesn't stay constant!"
