@@ -5,7 +5,6 @@ import numpy as np
 from astropy.modeling import models, fitting
 
 
-
 @pytest.fixture()
 def uniform_magnetic_field():
     x = np.linspace(-10, 10, 3) * u.m
@@ -13,6 +12,12 @@ def uniform_magnetic_field():
     magfieldstr = 1 * u.T
     test_plasma.magnetic_field[2] = magfieldstr
     return test_plasma
+
+
+def test_basic_species_functionality():
+    with pytest.raises(ValueError):
+        Species(plasma=uniform_magnetic_field())
+
 
 
 def test_particle_uniform_magnetic():
@@ -23,8 +28,7 @@ def test_particle_uniform_magnetic():
 
     q = 1 * u.C
     m = 1 * u.kg
-    s = Species(q, m, 1, test_plasma, dt=1e-2 * u.s, nt=int(1e4),
-                name="test particle")
+    s = Species(test_plasma, dt=1e-2 * u.s, nt=int(1e4), name="test particle")
 
     perp_speed = 0.01 * u.m / u.s
     parallel_speed = 1e-5 * u.m / u.s

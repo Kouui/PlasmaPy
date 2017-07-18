@@ -26,7 +26,7 @@ class Species:
         name of group
     """
 
-    def __init__(self, q, m, n, plasma, scaling=1, dt=np.inf, nt=np.inf,
+    def __init__(self, plasma, q = 1 * u.C, m = 1 * u.kg, n = 1, scaling=1, dt=np.inf, nt=np.inf,
                  name="particles"):
         self.q = q
         assert self.q.si.unit == u.C
@@ -95,9 +95,6 @@ class Species:
             self.boris_push()
             self.position_history[i] = self.x
             self.velocity_history[i] = self.v
-
-    def apply_bc(self):
-        self.particle_bc(self)
 
     def __repr__(self, *args, **kwargs):
         return f"Species(q={self.q:.4f},m={self.m:.4f},N={self.N}," \
