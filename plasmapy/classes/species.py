@@ -20,13 +20,14 @@ class Species:
         particle mass
     scaling : float
         number of particles represented by each macroparticle
-    pusher : function 
+    pusher : function
         particle push algorithm
     name : str
         name of group
     """
 
-    def __init__(self, q, m, n, plasma, scaling=1, dt=np.inf, nt=np.inf, name="particles"):
+    def __init__(self, q, m, n, plasma, scaling=1, dt=np.inf, nt=np.inf,
+                 name="particles"):
         self.q = q
         assert self.q.si.unit == u.C
         self.m = m
@@ -51,8 +52,10 @@ class Species:
         self.v = np.zeros((n, 3), dtype=float) * (u.m / u.s)
         self.name = name
 
-        self.position_history = np.zeros((self.NT, *self.x.shape), dtype=float) * u.m
-        self.velocity_history = np.zeros((self.NT, *self.v.shape), dtype=float) * (u.m / u.s)
+        self.position_history = np.zeros((self.NT, *self.x.shape),
+                                         dtype=float) * u.m
+        self.velocity_history = np.zeros((self.NT, *self.v.shape),
+                                         dtype=float) * (u.m / u.s)
         self.B_interpolator = RegularGridInterpolator(
             (self.plasma.x.si.value,
              self.plasma.y.si.value,
@@ -63,8 +66,8 @@ class Species:
 
     def interpolate_fields(self):
         interpolated_b = self.B_interpolator(self.x.si.value) * u.T
-        interpolated_e = np.zeros(
-            interpolated_b.shape) * u.V / u.m  # TODO: remove this placeholder once we figure out what to do with
+        # TODO: remove this placeholder once we figure out what to do with
+        interpolated_e = np.zeros(interpolated_b.shape) * u.V / u.m
         # local electric fields
         return interpolated_b, interpolated_e
 
@@ -97,9 +100,11 @@ class Species:
         self.particle_bc(self)
 
     def __repr__(self, *args, **kwargs):
-        return f"Species(q={self.q:.4f},m={self.m:.4f},N={self.N},name=\"{self.name}\",NT={self.NT})"
+        return f"Species(q={self.q:.4f},m={self.m:.4f},N={self.N}," \
+               f"name=\"{self.name}\",NT={self.NT})"
 
     def __str__(self):
-        return f"{self.N} {self.scaling:.2e}-{self.name} with q = {self.q:.2e}, m = {self.m:.2e}, " \
+        return f"{self.N} {self.scaling:.2e}-{self.name} with " \
+               f"q = {self.q:.2e}, m = {self.m:.2e}, " \
                f"{self.saved_iterations} saved history " \
                f"steps over {self.NT} iterations"

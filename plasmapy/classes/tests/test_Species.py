@@ -27,14 +27,16 @@ def test_particle_uniform_magnetic():
 
     q = 1 * u.C
     m = 1 * u.kg
-    s = Species(q, m, 1, test_plasma, dt=1e-2 * u.s, nt=int(1e4), name="test particle")
+    s = Species(q, m, 1, test_plasma, dt=1e-2 * u.s, nt=int(1e4),
+                name="test particle")
 
     perp_speed = 0.01 * u.m / u.s
     parallel_speed = 1e-5 * u.m / u.s
     s.v[:, 1] = perp_speed
 
     s.v[:, 2] = parallel_speed
-    estimated_gyrofreq = (s.q * test_plasma.magnetic_field_strength.mean() / s.m).to(1 / u.s)
+    estimated_gyrofreq = (s.q * test_plasma.magnetic_field_strength.mean()
+                          / s.m).to(1 / u.s)
     expected_gyroradius = s.v[0, 1] / estimated_gyrofreq
     estimated_gyroperiod = 2 * np.pi / estimated_gyrofreq
 
@@ -63,9 +65,11 @@ def test_particle_uniform_magnetic():
         plt.plot(s.t, p(s.t))
         plt.show()
 
-    assert np.allclose(z, p(s.t), atol=1e-4 * u.m), "z-velocity doesn't stay constant!"
+    assert np.allclose(z, p(s.t), atol=1e-4 * u.m),\
+        "z-velocity doesn't stay constant!"
 
     estimated_gyroradius = (x.max() - x.min()) / 2
-    assert np.isclose(expected_gyroradius, estimated_gyroradius, atol=1e-4 * u.m), "Gyroradii don't match!"
+    assert np.isclose(expected_gyroradius, estimated_gyroradius,
+                      atol=1e-4 * u.m), "Gyroradii don't match!"
 
     # plot()
